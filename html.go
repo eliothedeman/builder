@@ -105,15 +105,26 @@ func (n *node) Tag(k, v string) TagBuilder {
 	return n
 }
 
+var (
+	startTag    = []byte{'<'}
+	endTag      = []byte{'>'}
+	startEndTag = []byte{'<', '/'}
+)
+
 func (n *node) Build(w io.Writer) {
-	fmt.Fprintf(w, "<%s", n.name)
+	tmp := sToB(n.name)
+
+	w.Write(startTag)
+	w.Write(tmp)
 	for _, p := range n.pairs {
 		p.Build(w)
 	}
-	w.Write([]byte{'>'})
+	w.Write(endTag)
 
 	if n.body != nil {
 		n.body.Build(w)
 	}
-	fmt.Fprintf(w, "</%s>", n.name)
+	w.Write(startEndTag)
+	w.Write(tmp)
+	w.Write(endTag)
 }
