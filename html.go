@@ -6,14 +6,68 @@ import (
 )
 
 const (
-	p    = "p"
-	b    = "b"
-	h1   = "h1"
-	h2   = "h2"
-	h3   = "h3"
-	h4   = "h4"
-	body = "body"
+	a      = "a"
+	p      = "p"
+	b      = "b"
+	h1     = "h1"
+	h2     = "h2"
+	h3     = "h3"
+	h4     = "h4"
+	body   = "body"
+	title  = "title"
+	input  = "input"
+	form   = "form"
+	style  = "style"
+	script = "script"
 )
+
+type funcBuilder func(w io.Writer)
+
+func (f funcBuilder) Build(w io.Writer) {
+	f(w)
+}
+
+// Each will call f until it returns nil
+func Each(f func() Builder) Builder {
+	return funcBuilder(func(w io.Writer) {
+		next := f()
+		for next != nil {
+			next.Build(w)
+			next = f()
+		}
+	})
+}
+
+// Fmt takes a format string
+func Fmt(s string, args ...interface{}) Builder {
+	return Raw(fmt.Sprintf(s, args...))
+}
+
+// A is a link
+func A(s ...Builder) TagBuilder {
+	return &node{
+		name: a,
+		body: Join(s...),
+	}
+}
+
+// Form input
+func Form(action string, s ...Builder) TagBuilder {
+	n := &node{
+		name: form,
+		body: Join(s...),
+	}
+	return n.Tag("action", action)
+}
+
+// Input in a form
+func Input(inputType, name string) TagBuilder {
+	n := &node{
+		name: input,
+	}
+
+	return n.Tag("type", inputType).Tag("name", name)
+}
 
 // P is a paragraph
 func P(s ...Builder) TagBuilder {
@@ -71,12 +125,23 @@ func Body(s ...Builder) TagBuilder {
 	}
 }
 
+func Title(s ...Builder) TagBuilder {
+	return &node{
+		name: title,
+		body: Join(s...),
+	}
+}
+
 type pair struct {
 	k string
 	v string
 }
 
 func (p *pair) Build(w io.Writer) {
+	if p.v == "" {
+		fmt.Fprintf(w, ` %s`, p.k)
+		return
+	}
 	fmt.Fprintf(w, ` %s="%s"`, p.k, p.v)
 }
 
@@ -120,6 +185,9 @@ func (n *node) Build(w io.Writer) {
 		p.Build(w)
 	}
 	w.Write(endTag)
+	if n.body == nil {
+		return
+	}
 
 	if n.body != nil {
 		n.body.Build(w)
