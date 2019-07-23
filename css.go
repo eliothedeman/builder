@@ -12,11 +12,13 @@ type Class struct {
 	attrs map[string]string
 }
 
+// Style a given element.
 func (c *Class) Style(t TagBuilder) Builder {
 	t.Tag("class", c.name)
 	return t
 }
 
+// CSSClass class constructor.
 func CSSClass(name string, attrs map[string]string) *Class {
 	return &Class{
 		name:  name,
@@ -37,6 +39,7 @@ func Style(classes ...*Class) Builder {
 	}
 }
 
+// Build a css class
 func (c *Class) Build(w io.Writer) {
 	var b bytes.Buffer
 	for k, v := range c.attrs {

@@ -7,24 +7,93 @@ import (
 
 const (
 	a      = "a"
-	p      = "p"
 	b      = "b"
+	body   = "body"
+	div    = "div"
+	form   = "form"
 	h1     = "h1"
 	h2     = "h2"
 	h3     = "h3"
 	h4     = "h4"
-	body   = "body"
-	title  = "title"
+	header = "header"
+	footer = "footer"
+	hr     = "hr"
+	html   = "html"
+	img    = "img"
 	input  = "input"
-	form   = "form"
-	style  = "style"
+	li     = "li"
+	ol     = "ol"
+	p      = "p"
 	script = "script"
+	span   = "span"
+	style  = "style"
+	title  = "title"
+	ul     = "ul"
 )
+
+// Br is a line break
+var Br = Raw("</br>")
+
+// Header is a list element
+func Header(b ...Builder) TagBuilder {
+	return &node{
+		name: header,
+		body: Join(b...),
+	}
+}
+
+// Footer is a list element
+func Footer(b ...Builder) TagBuilder {
+	return &node{
+		name: footer,
+		body: Join(b...),
+	}
+}
+
+// Li is a list element
+func Li(b ...Builder) TagBuilder {
+	return &node{
+		name: li,
+		body: Join(b...),
+	}
+}
+
+// Span colors part of text
+func Span(b ...Builder) TagBuilder {
+	return &node{
+		name: span,
+		body: Join(b...),
+	}
+}
+
+// Ol is an ordered list
+func Ol(b ...Builder) TagBuilder {
+	return &node{
+		name: ol,
+		body: Join(b...),
+	}
+}
+
+// Ul is an unoredered list
+func Ul(b ...Builder) TagBuilder {
+	return &node{
+		name: ol,
+		body: Join(b...),
+	}
+}
 
 type funcBuilder func(w io.Writer)
 
 func (f funcBuilder) Build(w io.Writer) {
 	f(w)
+}
+
+// HTML is the whole page
+func HTML(b ...Builder) Builder {
+	return &node{
+		name: html,
+		body: Join(b...),
+	}
 }
 
 // Each will call f until it returns nil
@@ -44,11 +113,11 @@ func Fmt(s string, args ...interface{}) Builder {
 }
 
 // A is a link
-func A(s ...Builder) TagBuilder {
-	return &node{
+func A(text string, href string) TagBuilder {
+	return (&node{
 		name: a,
-		body: Join(s...),
-	}
+		body: Join(Raw(text)),
+	}).Tag("href", href)
 }
 
 // Form input
@@ -117,6 +186,14 @@ func H4(s ...Builder) TagBuilder {
 	}
 }
 
+// HR is a horizontal ruling
+func HR(s ...Builder) TagBuilder {
+	return &node{
+		name: h4,
+		body: Join(s...),
+	}
+}
+
 // Body is a body
 func Body(s ...Builder) TagBuilder {
 	return &node{
@@ -125,10 +202,11 @@ func Body(s ...Builder) TagBuilder {
 	}
 }
 
-func Title(s ...Builder) TagBuilder {
+// Title sets the title of the page.
+func Title(name string) TagBuilder {
 	return &node{
 		name: title,
-		body: Join(s...),
+		body: Raw(name),
 	}
 }
 
