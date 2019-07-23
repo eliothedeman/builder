@@ -34,6 +34,14 @@ const (
 // Br is a line break
 var Br = Raw("</br>")
 
+// Div is a divider
+func Div(b ...Builder) TagBuilder {
+	return &node{
+		name: div,
+		body: Join(b...),
+	}
+}
+
 // Header is a list element
 func Header(b ...Builder) TagBuilder {
 	return &node{
