@@ -10,18 +10,19 @@ const (
 	b      = "b"
 	body   = "body"
 	div    = "div"
+	footer = "footer"
 	form   = "form"
 	h1     = "h1"
 	h2     = "h2"
 	h3     = "h3"
 	h4     = "h4"
 	header = "header"
-	footer = "footer"
 	hr     = "hr"
 	html   = "html"
 	img    = "img"
 	input  = "input"
 	li     = "li"
+	nav    = "nav"
 	ol     = "ol"
 	p      = "p"
 	script = "script"
@@ -33,6 +34,14 @@ const (
 
 // Br is a line break
 var Br = Raw("</br>")
+
+// Nav bar
+func Nav(b ...Builder) TagBuilder {
+	return &node{
+		name: nav,
+		body: Join(b...),
+	}
+}
 
 // Div is a divider
 func Div(b ...Builder) TagBuilder {
